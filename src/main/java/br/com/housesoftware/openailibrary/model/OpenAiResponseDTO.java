@@ -1,8 +1,8 @@
 package br.com.housesoftware.openailibrary.model;
 
+import br.com.housesoftware.corelibrary.config.CoreConstants;
 import br.com.housesoftware.corelibrary.exception.GenericException;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.hkprogrammer.api.core.config.Constants;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,7 +32,7 @@ public class OpenAiResponseDTO {
         if(!getChoices().isEmpty()) {
             return getChoices().get(0).getMessage().getContent();
         } else {
-            throw new GenericException(Constants.Messages.IMAGE_PROCESS_ERROR);
+            throw new GenericException(CoreConstants.Messages.IMAGE_PROCESS_ERROR);
         }
     }
 }

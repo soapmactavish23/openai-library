@@ -96,7 +96,7 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
     //Software House
-    implementation "br.com.housesoftware:core-library:1.0.2"
+    implementation "br.com.housesoftware:core-library:1.0.3"
 }
 
 tasks.named("test") {
