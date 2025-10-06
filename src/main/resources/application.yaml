@@ -1,0 +1,8 @@
+server:
+  port: ${ENV_PORT:9006}
+spring:
+  main:
+    web-application-type: "none"
+web:
+  openai-url: ${OPENAI_URL}
+  openai-key: ${OPENAI_KEY}

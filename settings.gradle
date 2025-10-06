@@ -1,1 +1,9 @@
+pluginManagement {
+    plugins {
+        id 'org.springframework.boot' version "${springBootVersion}"
+        id 'io.spring.dependency-management' version "${springDependencyVersion}"
+        id 'org.gradle.toolchains.foojay-resolver-convention' version "${gradleToolchainsVersion}"
+    }
+}
+
 rootProject.name = 'openai-library'

@@ -1,29 +1,121 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.5.6'
-	id 'io.spring.dependency-management' version '1.1.7'
+    id "java"
+    id "java-library"
+    id "maven-publish"
+    id "org.springframework.boot"
+    id "io.spring.dependency-management"
 }
 
-group = 'br.com.housesoftware'
-version = '0.0.1-SNAPSHOT'
-description = 'Storage Library from Software House'
+def baseRepository = "http://nexus.house-software.com.br/repository/software-house-libs"
+
+group = "br.com.housesoftware"
+description = "Software House Libraries to back-end microservices"
+apply from: "${project.rootDir}/version.gradle"
+project.version = loadVersion().getVersion()
+println "Implementation.:" + project.group + ":" + project.name + ":" + project.version
+println "Repositories...:" + baseRepository
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
-	}
+    sourceCompatibility = JavaVersion.VERSION_17
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
+    mavenLocal()
+    maven {
+        url = baseRepository
+        allowInsecureProtocol = true
+        credentials {
+            username = findProperty("nexusUser") ?: System.getenv("NEXUS_USER")
+            password = findProperty("nexusPass") ?: System.getenv("NEXUS_PASS")
+        }
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            groupId = project.group
+            artifactId = project.name
+            version = project.version
+            pom {
+                name = project.name
+                description = project.description
+                url = baseRepository
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            url = baseRepository
+            allowInsecureProtocol = true
+            credentials {
+                username = findProperty("nexusUser") ?: System.getenv("NEXUS_USER")
+                password = findProperty("nexusPass") ?: System.getenv("NEXUS_PASS")
+            }
+        }
+    }
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.springframework.data:spring-data-commons'
+    implementation 'org.springframework.data:spring-data-jpa'
+
+    //  LOMBOK
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // JSON
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.17.2'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.17.2'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.2'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.2'
+
+    // SWAGGER
+    compileOnly 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
+
+    // Testes (JUnit Jupiter no exemplo)
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    //Software House
+    implementation "br.com.housesoftware:core-library:1.0.2"
 }
 
-tasks.named('test') {
-	useJUnitPlatform()
+tasks.named("test") {
+    useJUnitPlatform()
+}
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+    archiveClassifier.set("") // garante que vai ser core-library-1.0.0.jar
+    from sourceSets.main.output
+}
+
+
+// Disabling Gradle Module Metadata publication
+tasks.withType(GenerateModuleMetadata) {
+    // https://docs.gradle.org/current/userguide/publishing_gradle_module_metadata.html
+    enabled = false
 }

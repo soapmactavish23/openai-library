@@ -1,0 +1,109 @@
+class ApplicationVersion {
+    Integer major
+    Integer minor
+    Integer patch
+    Boolean release
+
+    ApplicationVersion(Integer major, Integer minor, Integer patch, Boolean release) {
+        this.major = major
+        this.minor = minor
+        this.patch = patch
+        this.release = release
+    }
+
+    private String getRelease() {
+        return this.release ? '' : '-SNAPSHOT'
+    }
+
+    String getVersion() {
+
+        return "$major.$minor.$patch" + this.getRelease()
+    }
+}
+
+
+ext.loadVersion = { ->
+
+    def versionPropertiesFile = file('version.properties')
+
+    if(!versionPropertiesFile.exists()) {
+        throw new Exception('No version.properties file found')
+    }
+
+    Properties versionProperties = new Properties()
+
+    versionPropertiesFile.withInputStream { stream ->
+        versionProperties.load(stream)
+    }
+    return new ApplicationVersion(versionProperties.major.toInteger(),
+            versionProperties.minor.toInteger(),
+            versionProperties.patch.toInteger(),
+            versionProperties.release.toBoolean())
+
+}
+
+/*
+This will increment the major version of the current version by 1.
+If the current version is v0.0.1 then it will move to v1.0.0
+ */
+task majorVersionUpdate(group: 'versioning', description: 'Bump to next major version') {
+    doFirst {
+        def versionFile = file('version.properties')
+        ant.propertyfile(file: versionFile) {
+            entry(key: 'major', type: 'int', operation: '+', value: 1)
+            entry(key: 'minor', type: 'int', operation: '=', value: 0)
+            entry(key: 'patch', type: 'int', operation: '=', value: 0)
+        }
+    }
+}
+
+/*
+This will increment the minor version of the current version by 1.
+If the current version is v0.0.1 then it will move to v0.1.1
+ */
+task minorVersionUpdate(group: 'versioning', description: 'Bump to next minor version') {
+    doFirst {
+        def versionFile = file('version.properties')
+        ant.propertyfile(file: versionFile) {
+            entry(key: 'minor', type: 'int', operation: '+', value: 1)
+            entry(key: 'patch', type: 'int', operation: '=', value: 0)
+        }
+    }
+}
+
+/*
+This will increment the patch version of the current version by 1.
+If the current version is v0.0.1 then it will move to v0.0.2
+ */
+task patchVersionUpdate(group: 'versioning', description: 'Bump to next patch version') {
+    doFirst {
+        def versionFile = file('version.properties')
+        ant.propertyfile(file: versionFile) {
+            entry(key: 'patch', type: 'int', operation: '+', value: 1)
+        }
+    }
+}
+
+/*
+This is will set the current to a release version. (SNAPSHOT will be removed)
+ */
+task releaseVersion(group: 'versioning', description: 'Make the version a release') {
+    doFirst {
+        def versionFile = file('version.properties')
+        ant.propertyfile(file: versionFile) {
+            entry(key: 'release', type: 'string', operation: '=', value: 'true')
+        }
+    }
+}
+
+/*
+This will set the current release to a non-release version ( SNAPSHOT release)
+ */
+task preReleaseVersion(group: 'versioning', description: 'Make the version a pre release') {
+    doFirst {
+        def versionFile = file('version.properties')
+        ant.propertyfile(file: versionFile) {
+            entry(key: 'release', type: 'string', operation: '=', value: 'false')
+        }
+    }
+}
