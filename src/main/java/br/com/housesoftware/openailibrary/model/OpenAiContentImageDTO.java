@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class OpenAiContentImageDTO extends OpenAiContentDTO{
+public class OpenAiContentImageDTO extends OpenAiContentDTO {
 
     @JsonProperty("image_url")
     private OpenAiImageUrl imageUrl;

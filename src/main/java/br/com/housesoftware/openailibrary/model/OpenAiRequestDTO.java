@@ -16,7 +16,7 @@ public class OpenAiRequestDTO {
     private List<OpenAiMessageDTO> messages = new ArrayList<>();
 
     public void dtoForImage(String question, MultipartFile image) throws IOException {
-        this.setModel("gpt-4o");
+        this.setModel("gpt-5.2");
 
         OpenAiMessageDTO message = new OpenAiMessageDTO();
         message.setRole("user");
